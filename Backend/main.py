@@ -1,14 +1,9 @@
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List
 
-class Fruit(BaseModel):
-    name: str
-
-class Fruits(BaseModel):
-    fruits: List[Fruit]
+from user_Auth import login
 
 app = FastAPI()
 
@@ -24,17 +19,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-memory_db = {"fruits": []}
-
-@app.get("/fruits", response_model=Fruits)
-def get_fruits():
-    return Fruits(fruits=memory_db["fruits"])
-
-@app.post("/fruits")
-def add_fruit(fruit: Fruit):
-    memory_db["fruits"].append(fruit)
-    return fruit
-    
+@app.post("/login/")
+async def loginEP(username: str = Form(...), password: str = Form(...)):
+    return login(username, password)
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="127.0.0.1", port=8000)
