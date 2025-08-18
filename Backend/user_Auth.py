@@ -1,5 +1,14 @@
 # login.py
 import sqlite3
+import os
+from jose import JWTError, jwt
+from passlib.context import CryptContext
+from dotenv import load_dotenv
+
+load_dotenv()
+SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 def login(username: str, password: str):
     connection = sqlite3.connect('LocalDB/localDB.db')
