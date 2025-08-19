@@ -17,10 +17,12 @@ cursor = connection.cursor()
 if __name__ == "__main__":
     user_id = login()
 
+#Creating the connection to chat for user interaction and memory
 def chat_with_gpt(chat_log):
     response = openai.ChatCompletion.create(model='gpt-5-nano', messages=chat_log)
     return response.choices[0].message.content.strip()
 
+#logic behind ai interaction and storing content using sqlite
 def call_AI(prompt: str, current_user):
     user_id = current_user.user_id
 
