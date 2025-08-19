@@ -4,5 +4,6 @@ pydantic
 openai
 python-multipart
 PyJWT
+python-dotenv
 python-jose[cryptography]
 passlib[bcrypt]
