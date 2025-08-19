@@ -1,7 +1,7 @@
 # ------------------setting up openai API key setup (chatbot)------------------
 import os
 import openai
-import datetime
+from datetime import datetime
 import sqlite3
 
 from dotenv import load_dotenv
@@ -21,30 +21,21 @@ def chat_with_gpt(chat_log):
     response = openai.ChatCompletion.create(model='gpt-5-nano', messages=chat_log)
     return response.choices[0].message.content.strip()
 
+def call_AI(prompt: str, current_user):
+    user_id = current_user.user_id
 
-chat_log = []
-n_remembered_post = 2
 
+    chat_log = [{'role': 'user', 'content': prompt}]
+    response_text = chat_with_gpt(chat_log)
 
-if __name__ == "__main__":
-    while True:
-        user_input = input("You: ")
-        if user_input.lower() in ['quit', "exit", "bye"]:
-            break
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    with sqlite3.connect('LocalDB/localDB.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO Content (user_id, prompt, response, Created_timestamp) VALUES (?, ?, ?, ?);",
+            (user_id, prompt, response_text, timestamp)
+        )
 
-        chat_log.append({'role': 'user', 'content': user_input})
+        conn.commit()
 
-        if len(chat_log) > n_remembered_post:
-            del chat_log[:len(chat_log)-n_remembered_post]
-
-        response = chat_with_gpt(chat_log)
-        
-        dtm_timestamp = datetime.datetime.now()
-        dtm_timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-        print("Chatbot:", response)
-        chat_log.append({'role': "assistant", 'content': response})
-        cursor.execute("INSERT INTO Content (user_id, prompt, response, Created_timestamp) VALUES (?, ?, ?, ?);", (user_id, user_input, response, dtm_timestamp))
-        connection.commit()
-
-connection.close()
+    return response_text
